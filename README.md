@@ -1,5 +1,5 @@
 # Data-Mining
-Course unit of the Master's Degree in Informatics Engineering, University of Minho, 2022/2023.
+Course unit of the Master's Degree in Software Engineering, University of Minho, 2022/2023.
 
 João Silva Torres PG50499
 
