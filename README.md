@@ -1,2 +1,2 @@
 # Data-Mining
-Curricular Unit Mestrado em Bioinformática, Universidade do Minho, 2022-2023.
+Course unit of the Master's Degree in Informatics Engineering, University of Minho, 2022/2023.
