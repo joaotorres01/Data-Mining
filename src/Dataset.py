@@ -120,3 +120,19 @@ class Dataset:
             
         counter[self.label] = np.sum(pd.isnull(self.y))
         return counter
+    
+    from collections import Counter
+    
+    def fill_missing_values(self):
+        """
+        Replaces null values with mean for numeric features and most frequent value for categorical features
+        """
+        for i, feature in enumerate(self.features):
+            if np.issubdtype(self.X[:, i].dtype, np.number):
+                feature_mean = np.nanmean(self.X[:, i])
+                self.X[:, i] = np.where(np.isnan(self.X[:, i]), feature_mean, self.X[:, i])
+            else:
+                feature_values = self.X[:, i][~pd.isnull(self.X[:, i])]
+                if len(feature_values) > 0:
+                    most_frequent_value = Counter(feature_values).most_common(1)[0][0]
+                    self.X[:, i] = np.where(pd.isnull(self.X[:, i]), most_frequent_value, self.X[:, i])
