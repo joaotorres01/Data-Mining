@@ -16,7 +16,7 @@ class Dataset:
             return len(self.X)
         else:
             return 0
-
+    
     def read_csv(self, filename, label_col=-1):
         df = pd.read_csv(filename)
         self.features = list(df.columns.values[:-1])
@@ -26,7 +26,11 @@ class Dataset:
         self.X = np.array(df, dtype=object)
         return self
 
-    #Métodos de Get e Set
+    #Using the method above
+    def read_tsv(self, path, label = None):
+        self.read_csv(path, label, 't')
+
+    #Get and Set
     def get_X(self):
         return self.X
 
@@ -36,11 +40,8 @@ class Dataset:
     def get_y(self):
         return self.y
 
-    #Utilizando o método de Read CSV definido
-    def read_tsv(self, path, label = None):
-        self.read_csv(path, label, 't')
-
-
+        
+    #Write to file
     def write_csv(self,filename):
             data = pd.DataFrame(data=np.column_stack((self.X, self.y)), columns=self.features+[self.label])
             data.to_csv(filename, index=False)
@@ -49,18 +50,73 @@ class Dataset:
             data = pd.DataFrame(data=np.column_stack((self.X, self.y)), columns=self.features+[self.label])
             data.to_tsv(filename, index=False)
 
-    def count_nulls(self):
-            null_counts = {}
-            for i, feature in enumerate(self.features):
-                null_counts[feature] = np.sum(pd.isnull(self.X[:, i]))
+    def get_mean(self):
+        """
+        Returns the mean of each feature
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        return np.nanmean(self.X, axis=0)
 
-            null_counts[self.label] = np.sum(pd.isnull(self.y))
-            return null_counts
+    def get_variance(self) -> np.ndarray:
+        """
+        Returns the variance of each feature
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        return np.nanvar(self.X, axis=0)
 
-    def summary(self):
-            print("Number of instances:", len(self))
+    def get_median(self) -> np.ndarray:
+        """
+        Returns the median of each feature
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        return np.nanmedian(self.X, axis=0)
+
+    def get_min(self) -> np.ndarray:
+        """
+        Returns the minimum of each feature
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        return np.nanmin(self.X, axis=0)
+
+    def get_max(self) -> np.ndarray:
+        """
+        Returns the maximum of each feature
+        Returns
+        -------
+        numpy.ndarray (n_features)
+        """
+        return np.nanmax(self.X, axis=0)
+
+    #Basic info
+    def summ(self):
             print("Number of features:", len(self.features))
-            print("Feature names:", self.features)
-            print("Label name:", self.label)
+            print("Number of instances:", len(self))
+            print("Names of the features :", self.features)
+            print("Name of the label:", self.label)
             print("X: ", self.X, "\n")
             print("y: ", self.y, "\n")
+
+    #Describe
+    def describe(self):
+        if self.X is not None:
+            df = pd.DataFrame(data=self.X, columns=self.features)
+            return df.describe()
+        else:
+            return None
+
+    #Count the null values
+    def nullcount(self):
+        counter = {}
+        for i, feature in enumerate(self.features):
+            counter[feature] = np.sum(pd.isnull(self.X[:, i]))
+            
+        counter[self.label] = np.sum(pd.isnull(self.y))
+        return counter
