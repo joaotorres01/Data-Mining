@@ -1,4 +1,5 @@
 from typing import Tuple, Sequence
+from collections import Counter
 
 import pandas as pd
 import numpy as np
@@ -17,18 +18,18 @@ class Dataset:
         else:
             return 0
     
-    def read_csv(self, filename, label_col=-1):
+    def read_csv(self, filename, label_col):
         df = pd.read_csv(filename)
         self.features = list(df.columns.values[:-1])
-        self.label = df.columns.values[-1]
-        self.y = df.iloc[:, label_col].values
-        df = df.drop(df.columns[label_col], axis=1)
-        self.X = np.array(df, dtype=object)
+        self.label = label_col
+        self.y = df[label_col].values
+        df = df.drop(columns= label_col, axis=1)
+        self.X = np.array(df, dtype=np.float64)
         return self
 
     #Using the method above
-    def read_tsv(self, path, label = None):
-        self.read_csv(path, label, 't')
+    def read_tsv(self, path, label):
+        self.read_csv(path, label, '\t')
 
     #Get and Set
     def get_X(self):
@@ -51,49 +52,44 @@ class Dataset:
             data.to_tsv(filename, index=False)
 
     def get_mean(self):
-        """
-        Returns the mean of each feature
-        Returns
-        -------
-        numpy.ndarray (n_features)
-        """
-        return np.nanmean(self.X, axis=0)
+        means = {}
+        for i, feature in enumerate(self.features):
+            feature_mean = np.nanmean(self.X[:, i])
+            means[feature] = feature_mean
+            print(f"Média de '{feature}': {feature_mean}")
+        return means
 
-    def get_variance(self) -> np.ndarray:
-        """
-        Returns the variance of each feature
-        Returns
-        -------
-        numpy.ndarray (n_features)
-        """
-        return np.nanvar(self.X, axis=0)
+    def get_variance(self):
+        variances = {}
+        for i, feature in enumerate(self.features):
+            feature_var = np.nanvar(self.X[:, i])
+            variances[feature] = feature_var
+            print(f"Variance of '{feature}': {feature_var}")
+        return variances
 
-    def get_median(self) -> np.ndarray:
-        """
-        Returns the median of each feature
-        Returns
-        -------
-        numpy.ndarray (n_features)
-        """
-        return np.nanmedian(self.X, axis=0)
+    def get_median(self):
+        medians = {}
+        for i, feature in enumerate(self.features):
+            feature_median = np.nanmedian(self.X[:, i])
+            medians[feature] = feature_median
+            print(f"Median of '{feature}': {feature_median}")
+        return medians
 
-    def get_min(self) -> np.ndarray:
-        """
-        Returns the minimum of each feature
-        Returns
-        -------
-        numpy.ndarray (n_features)
-        """
-        return np.nanmin(self.X, axis=0)
+    def get_min(self):
+        mins = {}
+        for i, feature in enumerate(self.features):
+            feature_min = np.nanmin(self.X[:, i])
+            mins[feature] = feature_min
+            print(f"Minimum of '{feature}': {feature_min}")
+        return mins
 
-    def get_max(self) -> np.ndarray:
-        """
-        Returns the maximum of each feature
-        Returns
-        -------
-        numpy.ndarray (n_features)
-        """
-        return np.nanmax(self.X, axis=0)
+    def get_max(self):
+        maxs = {}
+        for i, feature in enumerate(self.features):
+            feature_max = np.nanmax(self.X[:, i])
+            maxs[feature] = feature_max
+            print(f"Maximum of '{feature}': {feature_max}")
+        return maxs
 
     #Basic info
     def summ(self):
@@ -120,9 +116,8 @@ class Dataset:
             
         counter[self.label] = np.sum(pd.isnull(self.y))
         return counter
-    
-    from collections import Counter
-    
+
+
     def fill_missing_values(self):
         """
         Replaces null values with mean for numeric features and most frequent value for categorical features
