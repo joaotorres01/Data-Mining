@@ -1,4 +1,4 @@
-import pandas as pd
+import numpy as np
 
 '''
 #1: Load the tennis dataset and separate the attributes (features) and the labels (target variable).
@@ -15,22 +15,25 @@ class Prism:
     def fit(self, X, y):
         while len(X) > 0:
             # Step 1: Calculate the probability of each attribute/value pair
-            prob = pd.DataFrame(index=X.columns, columns=X.iloc[0,:])
-            for col in X.columns:
-                for val in X[col].unique():
-                    prob.loc[col,val] = len(X[(X[col] == val) & (y == self.target_class)]) / len(X[y == self.target_class])
+            prob = np.empty((X.shape[1], np.unique(X).size), dtype=float)
+            prob[:] = np.nan
+            for i, col in enumerate(range(X.shape[1])):
+                for j, val in enumerate(np.unique(X[:,col])):
+                    prob[i,j] = np.sum((X[:,col] == val) & (y == self.target_class)) / np.sum(y == self.target_class)
 
             # Step 2: Select the pair with the largest probability
-            attribute, value = prob.stack().idxmax()
+            attribute, value = np.unravel_index(np.nanargmax(prob), prob.shape)
             self.selected_attributes.append((attribute, value))
 
             # Step 3: Create a subset of the training set with the selected attribute/value combination
-            X = X[X[attribute] == value]
-            y = y[X.index]
+            mask = X[:, attribute] == value
+            X = X[mask, :]
+            y = y[mask]
 
             # Step 4: Remove all instances covered by this rule from the training set
-            X = X[X[attribute] != value]
-            y = y[X.index]
+            mask = X[:, attribute] != value
+            X = X[mask, :]
+            y = y[mask]
     
     def get_rule(self):
         # Construct the induced rule as the conjunction of all selected attribute/value pairs
