@@ -18,13 +18,14 @@ class Dataset:
         else:
             return 0
     
-    def read_csv(self, filename, label_col):
-        df = pd.read_csv(filename)
-        self.features = list(df.columns.values[:-1])
+    def read_csv(self, filename, label_col, delimiter=','):
+        df = pd.read_csv(filename, delimiter=delimiter)
+        self.features = list(df.columns.values)
+        self.features.remove(label_col)
         self.label = label_col
         self.y = df[label_col].values
-        df = df.drop(columns= label_col, axis=1)
-        self.X = np.array(df, dtype=np.float64)
+        df = df.drop(columns=label_col, axis=1)
+        self.X = np.array(df)
         return self
 
     #Using the method above

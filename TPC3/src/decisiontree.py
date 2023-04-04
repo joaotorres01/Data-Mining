@@ -22,6 +22,25 @@ class DecisionTree:
         self.criterion = criterion # the criterion used to select the best split. Can be 'gini', 'entropy', or 'gain_ratio'.
         self.root = None
 
+    def __repr__(self):
+        return self._repr(self.root)
+
+    def _repr(self, node, depth=0):
+        if node is None:
+            return ""
+
+        s = ""
+
+        if node.feature is None:
+            s += f"{node.label}"
+        else:
+            s += f"{'| ' * depth}X{node.feature} < {node.threshold}\n"
+            s += self._repr(node.left, depth+1)
+            s += f"{'| ' * depth}X{node.feature} >= {node.threshold}\n"
+            s += self._repr(node.right, depth+1)
+
+        return s
+
     def fit(self, X, y):
         self.root = self._build_tree(X, y, depth=0)
 
@@ -133,35 +152,6 @@ class DecisionTree:
 
         return best_feature, best_threshold
 
-    '''
-    def _get_best_split(self, X, y):
-        best_feature = None
-        best_threshold = None
-        best_gini = float('inf')
-
-        for feature in range(X.shape[1]):
-            # Get all unique values for the feature
-            feature_values = set(X[:, feature])
-            for threshold in feature_values:
-                # Split samples based on threshold
-                left_indices = X[:, feature] < threshold
-                right_indices = X[:, feature] >= threshold
-
-                # Calculate gini impurity of split
-                left_gini = self._gini_impurity(y[left_indices])
-                right_gini = self._gini_impurity(y[right_indices])
-                gini = (sum(left_indices) / len(y)) * left_gini + (sum(right_indices) / len(y)) * right_gini
-
-                # Update best split if necessary
-                if gini < best_gini:
-                    best_feature = feature
-                    best_threshold = threshold
-                    best_gini = gini
-
-        return best_feature, best_threshold
-
-    '''
-
     def _entropy(self, y):
         _, counts = np.unique(y, return_counts=True)
         probabilities = counts / len(y)
@@ -215,13 +205,6 @@ class DecisionTree:
         p = len(left_y) / len(y)
         return self._information_gain(y, left_y, right_y) / (-p*np.log2(p) - (1-p)*np.log2(1-p))
 
-
-    '''
-    def _gini_impurity(self, y):
-        p = [np.sum(y == c) / len(y) for c in set(y)]
-        return 1 - sum([x**2 for x in p])
-    '''
-
     #majority voting
     def _get_majority_label(self, y):
         counter = Counter(y)
@@ -270,5 +253,6 @@ class DecisionTree:
         error_decision = impurity_node - weighted_impurity
         return error_decision
     
+        
 
     

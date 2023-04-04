@@ -20,16 +20,19 @@ class Dataset:
     
     def read_csv(self, filename, label_col, delimiter=','):
         df = pd.read_csv(filename, delimiter=delimiter)
-        self.features = list(df.columns.values[:-1])
+        self.features = list(df.columns.values)
+        self.features.remove(label_col)
         self.label = label_col
         self.y = df[label_col].values
         df = df.drop(columns=label_col, axis=1)
-        self.X = df.values
+        self.X = np.array(df)
         return self
 
+    #Using the method above
     def read_tsv(self, path, label):
         self.read_csv(path, label, '\t')
 
+    #Get and Set
     def get_X(self):
         return self.X
 
@@ -40,6 +43,7 @@ class Dataset:
         return self.y
 
         
+    #Write to file
     def write_csv(self,filename):
             data = pd.DataFrame(data=np.column_stack((self.X, self.y)), columns=self.features+[self.label])
             data.to_csv(filename, index=False)
@@ -53,7 +57,7 @@ class Dataset:
         for i, feature in enumerate(self.features):
             feature_mean = np.nanmean(self.X[:, i])
             means[feature] = feature_mean
-            print(f"Mean of '{feature}': {feature_mean}")
+            print(f"Média de '{feature}': {feature_mean}")
         return means
 
     def get_variance(self):
@@ -88,6 +92,7 @@ class Dataset:
             print(f"Maximum of '{feature}': {feature_max}")
         return maxs
 
+    #Basic info
     def summ(self):
             print("Number of features:", len(self.features))
             print("Number of instances:", len(self))
@@ -96,10 +101,11 @@ class Dataset:
             print("X: ", self.X, "\n")
             print("y: ", self.y, "\n")
 
+    #Describe
     def describe(self):
         if self.X is not None:
             df = pd.DataFrame(data=self.X, columns=self.features)
-            return df.describe(include='all')
+            return df.describe()
         else:
             return None
 

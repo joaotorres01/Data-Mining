@@ -18,7 +18,7 @@ class VarianceThreshold:
     def fit(self, dataset: Dataset):
 
         # Compute the variance of each feature
-        features_array = np.array(dataset.X).astype(np.float)
+        features_array = np.array(dataset.X).astype(float)
 
         self.variance = np.var(features_array, axis=0)
         return self
@@ -39,4 +39,8 @@ class VarianceThreshold:
         new_dataset.features = features
 
         return new_dataset
+    
+    def fit_transform(self, dataset: Dataset) -> Dataset:
+        self.fit(dataset)
+        return self.transform(dataset)
 

@@ -3,12 +3,13 @@ from typing import Callable
 import numpy as np
 
 from .Dataset import Dataset
-from .fClassifier import f_classif
+from .f_Classifier import f_classif
+from .f_Regression import f_regress
 
 
 class Select_K_Best:
 
-    def __init__(self, score_func: Callable = f_classif, k: int = 10):
+    def __init__(self, score_func: Callable = f_classif, k: int = 5):
         self.k = k
         self.score_func = score_func
         self.F = None
